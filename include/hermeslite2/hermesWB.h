@@ -36,7 +36,7 @@ namespace gr {
     class HERMESLITE2_API hermesWB : virtual public gr::block
     {
      public:
-      typedef boost::shared_ptr<hermesWB> sptr;
+      typedef std::shared_ptr<hermesWB> sptr;
 
       /*!
        * \brief Return a shared_ptr to a new instance of hpsdr::hermesWB.

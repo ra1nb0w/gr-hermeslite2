@@ -41,6 +41,7 @@ namespace gr {
  * \param AlexTA  HPSDR Alex Tx Ant Selector
  * \param AlexHPF  HPSDR Alex Rx High Pass Filter Selector
  * \param AlexLPF  HPSDR Alex Tx Low Pass Filter Selector
+ * \param MACAddr MAC Address of target or * for first detected
  *
  */
       hermesWB_impl(bool RxPre, const char* Intfc, const char * ClkS,

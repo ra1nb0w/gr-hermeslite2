@@ -38,8 +38,8 @@ blocks:
     comment: ''
     gui_hint: ''
     label: Frequency (Hz)
-    type: real
-    value: 7e6
+    type: int
+    value: '7000000'
   states:
     bus_sink: false
     bus_source: false
