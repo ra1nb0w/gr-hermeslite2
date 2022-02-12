@@ -39,13 +39,14 @@ HermesProxyW* HermesW;	// make it visible to metis.cc
 namespace gr {
   namespace hermeslite2 {
 
+    using output_type = float;
     hermesWB::sptr
     hermesWB::make(bool RxPre, const char* Intfc, const char * ClkS,
 		   int AlexRA, int AlexTA, int AlexHPF, int AlexLPF,
 		   const char* MACAddr)
     {
-      return gnuradio::get_initial_sptr
-        (new hermesWB_impl(RxPre, Intfc, ClkS, AlexRA, AlexTA, AlexHPF, AlexLPF, MACAddr));
+      return gnuradio::make_block_sptr<hermesWB_impl>
+        (RxPre, Intfc, ClkS, AlexRA, AlexTA, AlexHPF, AlexLPF, MACAddr);
     }
 
     /*
@@ -131,7 +132,7 @@ int hermesWB_impl::general_work (int noutput_items,
                        gr_vector_void_star &output_items)
     {
 
-       float *out0 = (float *) output_items[0];		// WB Rcvr samples
+       output_type *out = reinterpret_cast<output_type*>(output_items[0]); // WB Rcvr samples
     
   // We always get 256 Real samples per USB frame (Read buffer) from HermesProxyW
   //
@@ -155,14 +156,14 @@ int hermesWB_impl::general_work (int noutput_items,
    // aligned and have enough Read buffers - emit one complete vector to out0[]
 
 	IQBuf_t ReadBuf = HermesW->GetCurrentRxReadBuf();
-	IQBuf_t out = out0;
+	IQBuf_t outp = out;
 
 	for (int i=0; i<64; i++)
 	{
 //	  for (int j=0; j<256; j++)
-//	    out0[i*256+j] = ReadBuf[j];
-	  memcpy(out, ReadBuf, 256*sizeof(float));
-	  out += 256;  
+//	    outp[i*256+j] = ReadBuf[j];
+	  memcpy(outp, ReadBuf, 256*sizeof(float));
+	  outp += 256;  
 	  ReadBuf = HermesW->GetNextRxReadBuf();
 	}
 	return(1);

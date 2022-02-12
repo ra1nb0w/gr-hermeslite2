@@ -35,7 +35,7 @@ find_package(Gnuradio "3.9" REQUIRED)
 set(VERSION_MAJOR 1)
 set(VERSION_API   0)
 set(VERSION_ABI   0)
-set(VERSION_PATCH git)
+set(VERSION_PATCH 0)
 
 cmake_policy(SET CMP0011 NEW)
 

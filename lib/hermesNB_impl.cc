@@ -39,6 +39,8 @@ HermesProxy* Hermes;	// make it visible to metis.cc
 namespace gr {
   namespace hermeslite2 {
 
+    using input_type = gr_complex;
+    using output_type = gr_complex;
     hermesNB::sptr
     hermesNB::make(int RxFreq0, int RxFreq1, int RxFreq2, int RxFreq3,
 		   int RxFreq4, int RxFreq5, int RxFreq6, int RxFreq7,
@@ -48,11 +50,11 @@ namespace gr {
 		   int Verbose, int NumRx,
 		   const char* MACAddr, bool AGC, int LNAG, bool PA, bool Q5)
     {
-      return gnuradio::get_initial_sptr
-        (new hermesNB_impl(RxFreq0, RxFreq1, RxFreq2, RxFreq3, RxFreq4, RxFreq5,
-			   RxFreq6, RxFreq7, TxFreq, PTTModeSel, PTTTxMute,
-			   PTTRxMute, TxDr, RxSmp, Intfc,
-			   Verbose, NumRx, MACAddr, AGC, LNAG, PA, Q5));
+      return gnuradio::make_block_sptr<hermesNB_impl>
+        (RxFreq0, RxFreq1, RxFreq2, RxFreq3, RxFreq4, RxFreq5,
+         RxFreq6, RxFreq7, TxFreq, PTTModeSel, PTTTxMute,
+	 PTTRxMute, TxDr, RxSmp, Intfc,
+	 Verbose, NumRx, MACAddr, AGC, LNAG, PA, Q5);
     }
 
     /*
@@ -66,8 +68,8 @@ namespace gr {
 		   int Verbose, int NumRx,
 		   const char* MACAddr, bool AGC, int LNAG, bool PA, bool Q5)
       : gr::block("hermesNB",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)),		// inputs to hermesNB block
-              gr::io_signature::make(1, MAXRECEIVERS, sizeof(gr_complex)) )	// outputs from hermesNB block
+              gr::io_signature::make(1, 1, sizeof(input_type)),		// inputs to hermesNB block
+              gr::io_signature::make(1, MAXRECEIVERS, sizeof(output_type)) )	// outputs from hermesNB block
     {
       Hermes = new HermesProxy(RxFreq0, RxFreq1, RxFreq2, RxFreq3, RxFreq4,
 			       RxFreq5, RxFreq6, RxFreq7, TxFreq, PTTModeSel, PTTTxMute,
@@ -211,15 +213,15 @@ int hermesNB_impl::general_work (int noutput_items,
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-
-       const gr_complex *in0 = (const gr_complex *) input_items[0];	// Tx samples
+       const input_type *in = reinterpret_cast<const input_type*>(input_items[0]);  // Tx Samples
+       output_type *out = reinterpret_cast<output_type*>(output_items[0]); // Rx Samples
  
 // Send I and Q samples received on input port to HermesProxy, it may or may not
 // consume them. Hermes needs 63 complex samples in each HPSDR-USB frame.
 
        if ((ninput_items[0] >= 63))
        {
-         int consumed = Hermes->PutTxIQ(in0, 63);
+         int consumed = Hermes->PutTxIQ(in, 63);
          consume_each(consumed); // Tell runtime system how many input items we consumed on
   				 // each input stream.
        };
